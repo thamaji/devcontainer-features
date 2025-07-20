@@ -1,0 +1,13 @@
+{
+    "id": "codex-cli",
+    "version": "1.0.0",
+    "name": "Codex CLI",
+    "description": "Installs OpenAI Codex CLI with API key support",
+    "options": {
+        "OPENAI_API_KEY": {
+            "type": "string",
+            "description": "OpenAI API Key",
+            "default": ""
+        }
+    }
+}
