@@ -54,6 +54,12 @@ else
   exit 1
 fi
 
+# Codex CLIがすでにインストールされている場合は何もしない
+if command -v codex >/dev/null 2>&1; then
+  echo "Codex CLI is already installed. Skipping feature install."
+  exit 0
+fi
+
 # latest バージョンを取得
 if [ "${VERSION}" = "latest" ]; then
   VERSION=$(
