@@ -3,6 +3,8 @@
     "version": "1.0.0",
     "name": "Codex CLI",
     "description": "Installs OpenAI Codex CLI with API key support",
+    "documentationURL": "https://github.com/thamaji/codex-cli-feature?tab=readme-ov-file",
+    "licenseURL": "https://github.com/thamaji/codex-cli-feature?tab=MIT-1-ov-file",
     "options": {
         "OPENAI_API_KEY": {
             "type": "string",
