@@ -1,0 +1,13 @@
+{
+  "id": "lefthook",
+  "version": "0.1.0",
+  "name": "lefthook",
+  "description": "Installs lefthook Git hooks manager",
+  "options": {
+    "LEFTHOOK_VERSION": {
+      "type": "string",
+      "description": "lefthook version",
+      "default": "latest"
+    }
+  }
+}
