@@ -1,0 +1,13 @@
+{
+  "id": "gitleaks",
+  "version": "1.0.0",
+  "name": "gitleaks",
+  "description": "Installs gitleaks for scanning git repos for secrets",
+  "options": {
+    "VERSION": {
+      "type": "string",
+      "description": "gitleaks version",
+      "default": "latest"
+    }
+  }
+}
