@@ -69,6 +69,7 @@ if [ "${VERSION}" = "latest" ]; then
 fi
 
 # Codex CLIをインストール
+echo download Codex CLI: "https://github.com/openai/codex/releases/download/${VERSION}/codex-${ARCH}-unknown-linux-musl.tar.gz"
 mkdir -p /usr/local/codex-cli
 curl -fsSL "https://github.com/openai/codex/releases/download/${VERSION}/codex-${ARCH}-unknown-linux-musl.tar.gz" \
   | tar -xz -C /usr/local/codex-cli
