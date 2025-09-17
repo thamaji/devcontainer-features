@@ -5,7 +5,6 @@ echo "Installing Codex CLI..."
 
 VERSION=${VERSION:-"latest"}
 OPENAI_API_KEY=${OPENAI_API_KEY:-""}
-INSTALL_DIR="/usr/local"
 
 DISTRO=""
 if [ -f  /etc/alpine-release ]; then
@@ -36,7 +35,7 @@ if [ "${DISTRO}" = "alpine" ]; then
   exit 1
 
 elif [ "${DISTRO}" = "debian" ] || [ "${DISTRO}" = "ubuntu" ]; then
-  recommends="coreutils findutils grep ripgrep sed" # Codex のホワイトリストコマンドを提供するパッケージ
+  recommends="coreutils fd-find findutils gawk grep ripgrep sed" # Codex のホワイトリストコマンドを提供するパッケージ
   require="ca-certificates curl tar" # インストールに必要なパッケージ
   installed=$(dpkg -l | awk '/^ii/ { print $2 }')
   missing=""
@@ -69,18 +68,25 @@ if [ "${VERSION}" = "latest" ]; then
   )
 fi
 
-# Codex CLIをダウンロード
-mkdir -p "${INSTALL_DIR}/codex-cli"
+# Codex CLIをインストール
+mkdir -p /usr/local/codex-cli
 curl -fsSL "https://github.com/openai/codex/releases/download/${VERSION}/codex-${ARCH}-unknown-linux-musl.tar.gz" \
-  | tar -xz -C "${INSTALL_DIR}/codex-cli"
+  | tar -xz -C /usr/local/codex-cli
+mkdir -p /usr/local/bin
+ln -s /usr/local/codex-cli/codex-x86_64-unknown-linux-musl /usr/local/bin/codex
 
-# OPENAI_API_KEY を仕込んだラッパースクリプトをつくる
-mkdir -p "${INSTALL_DIR}/bin"
-cat <<EOF > "${INSTALL_DIR}/bin/codex"
+# postCreateCommand 用のスクリプトを作成
+# OPENAI_API_KEY が指定されていれば、devcontainer の作成後に API Key でのログインを実行する。
+# ~/.codex が無い場合に login が失敗する（おそらくバグ）のであらかじめつくっておく。
+cat <<EOF >/usr/local/codex-cli/setup.sh
 #!/bin/sh
-export OPENAI_API_KEY="${OPENAI_API_KEY}"
-exec ${INSTALL_DIR}/codex-cli/codex-${ARCH}-unknown-linux-musl "\$@"
+set -e
+if [ -z "${OPENAI_API_KEY}" ]; then
+  exit
+fi
+mkdir -p ~/.codex
+codex login --api-key "${OPENAI_API_KEY}"
 EOF
-chmod +x "${INSTALL_DIR}/bin/codex"
+chmod +x /usr/local/codex-cli/setup.sh
 
 echo "Codex CLI installed successfully."
