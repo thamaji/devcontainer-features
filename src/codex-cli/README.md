@@ -12,8 +12,9 @@ In your `devcontainer.json`, add:
 
 ```json
 "features": {
-  "ghcr.io/thamaji/devcontainer-features/codex-cli:1": {
-    "OPENAI_API_KEY": "your_api_key_here"
+  "ghcr.io/thamaji/devcontainer-features/codex-cli:latest": {
+    "OPENAI_API_KEY": "your_api_key_here",
+    "VERSION": "latest"
   }
 }
 ```
