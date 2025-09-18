@@ -80,6 +80,7 @@ fi
 # postCreateCommand 用のスクリプトを作成
 # OPENAI_API_KEY が指定されていれば、devcontainer の作成後に API Key でのログインを実行する。
 # ~/.codex が無い場合に login が失敗する（おそらくバグ）のであらかじめつくっておく。
+mkdir -p /usr/local/codex-cli
 cat <<EOF >/usr/local/codex-cli/setup.sh
 #!/bin/sh
 set -e
