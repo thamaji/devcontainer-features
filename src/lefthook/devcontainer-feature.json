@@ -1,8 +1,9 @@
 {
   "id": "lefthook",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "lefthook",
   "description": "Installs lefthook Git hooks manager",
+  "postCreateCommand": "/usr/local/lefthook/setup.sh",
   "options": {
     "LEFTHOOK_VERSION": {
       "type": "string",
