@@ -53,28 +53,29 @@ else
   exit 1
 fi
 
-# Codex CLIがすでにインストールされている場合は何もしない
 if command -v codex >/dev/null 2>&1; then
+  # Codex CLI がすでにインストールされている場合は何もしない
   echo "Codex CLI is already installed. Skipping feature install."
-  exit 0
-fi
 
-# latest バージョンを取得
-if [ "${VERSION}" = "latest" ]; then
-  VERSION=$(
-    curl -fsSL https://api.github.com/repos/openai/codex/releases/latest \
-    | grep '"tag_name":' \
-    | sed -E 's/.*"([^"]+)".*/\1/'
-  )
-fi
+else
+  # latest バージョンを取得
+  if [ "${VERSION}" = "latest" ]; then
+    VERSION=$(
+      curl -fsSL https://api.github.com/repos/openai/codex/releases/latest \
+      | grep '"tag_name":' \
+      | sed -E 's/.*"([^"]+)".*/\1/'
+    )
+  fi
 
-# Codex CLIをインストール
-echo download Codex CLI: "https://github.com/openai/codex/releases/download/${VERSION}/codex-${ARCH}-unknown-linux-musl.tar.gz"
-mkdir -p /usr/local/codex-cli
-curl -fsSL "https://github.com/openai/codex/releases/download/${VERSION}/codex-${ARCH}-unknown-linux-musl.tar.gz" \
-  | tar -xz -C /usr/local/codex-cli
-mkdir -p /usr/local/bin
-ln -s /usr/local/codex-cli/codex-x86_64-unknown-linux-musl /usr/local/bin/codex
+  # Codex CLIをインストール
+  echo download Codex CLI: "https://github.com/openai/codex/releases/download/${VERSION}/codex-${ARCH}-unknown-linux-musl.tar.gz"
+  mkdir -p /usr/local/codex-cli
+  curl -fsSL "https://github.com/openai/codex/releases/download/${VERSION}/codex-${ARCH}-unknown-linux-musl.tar.gz" \
+    | tar -xz -C /usr/local/codex-cli
+  mkdir -p /usr/local/bin
+  ln -s /usr/local/codex-cli/codex-x86_64-unknown-linux-musl /usr/local/bin/codex
+
+fi
 
 # postCreateCommand 用のスクリプトを作成
 # OPENAI_API_KEY が指定されていれば、devcontainer の作成後に API Key でのログインを実行する。
