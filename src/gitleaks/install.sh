@@ -4,7 +4,6 @@ set -e
 echo "Installing gitleaks..."
 
 VERSION=${VERSION:-"latest"}
-INSTALL_DIR="/usr/local"
 
 DISTRO=""
 if [ -f /etc/alpine-release ]; then
@@ -29,7 +28,7 @@ case "$ARCH" in
     ;;
 esac
 
-# Install required packages on Debian/Ubuntu
+# 依存・推奨パッケージのインストール
 if [ "${DISTRO}" = "alpine" ]; then
   echo "Unsupported distribution"
   exit 1
@@ -52,13 +51,13 @@ else
   exit 1
 fi
 
-# If already installed, skip
+  # gitleaks がすでにインストールされている場合は何もしない
 if command -v gitleaks >/dev/null 2>&1; then
   echo "gitleaks is already installed. Skipping feature install."
   exit 0
 fi
 
-# Determine latest version if requested
+# latest バージョンを取得
 if [ "${VERSION}" = "latest" ]; then
   VERSION=$(
     curl -fsSL https://api.github.com/repos/zricethezav/gitleaks/releases/latest \
@@ -67,9 +66,9 @@ if [ "${VERSION}" = "latest" ]; then
   )
 fi
 
-# Download and install gitleaks
-mkdir -p "${INSTALL_DIR}/gitleaks"
+# gitleaks をインストール
+echo download gitleaks: "https://github.com/zricethezav/gitleaks/releases/download/${VERSION}/gitleaks_${VERSION#v}_linux_${ARCH}.tar.gz"
 curl -fsSL "https://github.com/zricethezav/gitleaks/releases/download/${VERSION}/gitleaks_${VERSION#v}_linux_${ARCH}.tar.gz" \
-  | tar -xz -C "${INSTALL_DIR}/bin" gitleaks
+  | tar -xz -C /usr/local/bin gitleaks
 
 echo "gitleaks installed successfully."
