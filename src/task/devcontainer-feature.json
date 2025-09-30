@@ -1,0 +1,13 @@
+{
+    "id": "task",
+    "version": "1.0.0",
+    "name": "Task",
+    "description": "Installs Task for task runner / build tool",
+    "options": {
+        "VERSION": {
+            "type": "string",
+            "description": "Task version",
+            "default": "latest"
+        }
+    }
+}
