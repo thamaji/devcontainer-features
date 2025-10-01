@@ -11,7 +11,7 @@ OPENAI_API_KEY=${OPENAI_API_KEY:-""}
 apk_install() {
   _apk_install_package_list=""
   for _apk_install_package in "${@}"; do
-    if ! apk info -e "${_apk_install_package}" > /dev/null 2>&1 || [ "${_apt_install_package}" = "ca-certificates" ]; then
+    if ! apk info -e "${_apk_install_package}" > /dev/null 2>&1 || [ "${_apk_install_package}" = "ca-certificates" ]; then
       _apk_install_package_list="${_apk_install_package_list} ${_apk_install_package}"
     fi
   done
@@ -39,17 +39,14 @@ apt_install() {
 
 # curl もしくは wget でインターネットからリソースをダウンロードする関数
 download() {
-    _download_url="${1}"
-
-    if command -v curl >/dev/null 2>&1; then
-        curl -fsSL "${_download_url}"
-
-    elif command -v wget >/dev/null 2>&1; then
-        wget -qO- "${_download_url}"
-
-    else
-        return 1
-    fi
+  _download_url="${1}"
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL "${_download_url}"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -qO- "${_download_url}"
+  else
+    return 1
+  fi
 }
 
 # インストールを開始
