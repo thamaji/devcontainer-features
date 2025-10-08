@@ -139,7 +139,7 @@ else
   mkdir -p /usr/local/codex-cli
   download "${download_url}" | tar -xz -C /usr/local/codex-cli
   mkdir -p /usr/local/bin
-  ln -s /usr/local/codex-cli/codex-x86_64-unknown-linux-musl /usr/local/bin/codex
+  ln -s /usr/local/codex-cli/codex-${arch}-unknown-linux-musl /usr/local/bin/codex
 
   echo "Codex CLI installed successfully."
 fi
