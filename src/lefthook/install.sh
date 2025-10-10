@@ -3,6 +3,9 @@ set -e
 
 # devcontainer feature の options
 VERSION=${VERSION:-"latest"}
+if [ "${VERSION}" != "latest" ] && [ "${VERSION#v}" = "${VERSION}" ]; then
+  VERSION="v${VERSION}"
+fi
 
 # 関数定義
 
@@ -25,14 +28,15 @@ apk_install() {
 apt_install() {
   _apt_install_package_list=""
   for _apt_install_package in "${@}"; do
-    if ! dpkg -l "${_apt_install_package}" > /dev/null 2>&1 || [ "${_apt_install_package}" = "ca-certificates" ]; then
+    if ! dpkg-query -W -f='${Status}' "${_apt_install_package}" 2>/dev/null | grep -q "install ok installed" \
+       || [ "${_apt_install_package}" = "ca-certificates" ]; then
       _apt_install_package_list="${_apt_install_package_list} ${_apt_install_package}"
     fi
   done
 
   if [ -n "${_apt_install_package_list}" ]; then
     apt-get update
-    apt-get install -y --no-install-recommends ${_apt_install_package_list}
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ${_apt_install_package_list}
   fi
 }
 
@@ -44,6 +48,7 @@ download() {
   elif command -v wget >/dev/null 2>&1; then
     wget -qO- "${_download_url}"
   else
+    echo "Neither curl nor wget is available to download ${_download_url}." >&2
     return 1
   fi
 }
@@ -71,7 +76,7 @@ case "${arch}" in
     arch="arm64"
     ;;
   *)
-    echo "Unsupported architecture: ${arch}"
+    echo "Unsupported architecture: ${arch}" >&2
     exit 1
     ;;
 esac
@@ -100,7 +105,7 @@ else
       ;;
 
     *)
-      echo "Unsupported distribution"
+      echo "Unsupported distribution" >&2
       exit 1
       ;;
   esac
@@ -112,6 +117,10 @@ else
       | grep '"tag_name":' \
       | sed -E 's/.*"([^\"]+)".*/\1/'
     )
+    if [ -z "${VERSION}" ]; then
+      echo "latest version could not be determined" >&2
+      exit 1
+    fi
   fi
 
   # lefthook をインストール

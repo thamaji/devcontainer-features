@@ -1,6 +1,6 @@
 {
   "id": "ast-grep",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "name": "ast-grep(sg)",
   "description": "Installs ast-grep for searching and refactoring code",
   "options": {

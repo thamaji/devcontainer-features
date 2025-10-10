@@ -3,6 +3,9 @@ set -e
 
 # devcontainer feature の options
 VERSION=${VERSION:-"latest"}
+if [ "${VERSION}" != "latest" ] && [ "${VERSION#rust-v}" = "${VERSION}" ]; then
+  VERSION="rust-v${VERSION}"
+fi
 OPENAI_API_KEY=${OPENAI_API_KEY:-""}
 
 # 関数定義
@@ -26,14 +29,15 @@ apk_install() {
 apt_install() {
   _apt_install_package_list=""
   for _apt_install_package in "${@}"; do
-    if ! dpkg -l "${_apt_install_package}" > /dev/null 2>&1 || [ "${_apt_install_package}" = "ca-certificates" ]; then
+    if ! dpkg-query -W -f='${Status}' "${_apt_install_package}" 2>/dev/null | grep -q "install ok installed" \
+       || [ "${_apt_install_package}" = "ca-certificates" ]; then
       _apt_install_package_list="${_apt_install_package_list} ${_apt_install_package}"
     fi
   done
 
   if [ -n "${_apt_install_package_list}" ]; then
     apt-get update
-    apt-get install -y --no-install-recommends ${_apt_install_package_list}
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ${_apt_install_package_list}
   fi
 }
 
@@ -45,6 +49,7 @@ download() {
   elif command -v wget >/dev/null 2>&1; then
     wget -qO- "${_download_url}"
   else
+    echo "Neither curl nor wget is available to download ${_download_url}." >&2
     return 1
   fi
 }
@@ -72,7 +77,7 @@ case "${arch}" in
     arch="aarch64"
     ;;
   *)
-    echo "Unsupported architecture: ${arch}"
+    echo "Unsupported architecture: ${arch}" >&2
     exit 1
     ;;
 esac
@@ -84,15 +89,19 @@ if command -v codex >/dev/null 2>&1; then
   # Codex CLI が利用する推奨パッケージのインストール
   case "${distro}" in
     alpine)
-      apk_install coreutils fd findutils gawk grep ripgrep sed
+      apk_install ca-certificates coreutils fd findutils gawk grep ripgrep sed
       ;;
 
     debian | ubuntu)
-      apt_install coreutils fd-find findutils gawk grep ripgrep sed
+      apt_install ca-certificates coreutils fd-find findutils gawk grep ripgrep sed
+
+      if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
+        ln -sf "$(command -v fdfind)" /usr/local/bin/fd
+      fi
       ;;
 
     *)
-      echo "Unsupported distribution"
+      echo "Unsupported distribution" >&2
       exit 1
       ;;
   esac
@@ -116,6 +125,10 @@ else
       fi
       packages="coreutils fd-find findutils gawk grep ripgrep sed ${packages}"
       apt_install ${packages}
+
+      if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
+        ln -sf "$(command -v fdfind)" /usr/local/bin/fd
+      fi
       ;;
 
     *)
@@ -131,6 +144,10 @@ else
       | grep '"tag_name":' \
       | sed -E 's/.*"([^"]+)".*/\1/'
     )
+    if [ -z "${VERSION}" ]; then
+      echo "latest version could not be determined" >&2
+      exit 1
+    fi
   fi
 
   # Codex CLIをインストール
@@ -139,14 +156,13 @@ else
   mkdir -p /usr/local/codex-cli
   download "${download_url}" | tar -xz -C /usr/local/codex-cli
   mkdir -p /usr/local/bin
-  ln -s /usr/local/codex-cli/codex-${arch}-unknown-linux-musl /usr/local/bin/codex
+  ln -snf /usr/local/codex-cli/codex-${arch}-unknown-linux-musl /usr/local/bin/codex
 
   echo "Codex CLI installed successfully."
 fi
 
 # postCreateCommand 用のスクリプトを作成
 # OPENAI_API_KEY が指定されていれば、devcontainer の作成後に API Key でのログインを実行する。
-# ~/.codex が無い場合に login が失敗する（おそらくバグ）のであらかじめつくっておく。
 mkdir -p /usr/local/codex-cli
 cat <<EOF >/usr/local/codex-cli/setup.sh
 #!/bin/sh
@@ -154,7 +170,6 @@ set -e
 if [ -z "${OPENAI_API_KEY}" ]; then
   exit
 fi
-mkdir -p ~/.codex
-codex login --api-key "${OPENAI_API_KEY}"
+echo "${OPENAI_API_KEY}" | codex login --with-api-key
 EOF
 chmod +x /usr/local/codex-cli/setup.sh
