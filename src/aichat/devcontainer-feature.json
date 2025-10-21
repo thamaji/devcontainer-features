@@ -1,0 +1,13 @@
+{
+  "id": "aichat",
+  "version": "1.0.0",
+  "name": "aichat",
+  "description": "Installs aichat for All-in-one LLM CLI Tool",
+  "options": {
+    "VERSION": {
+      "type": "string",
+      "description": "aichat version",
+      "default": "latest"
+    }
+  }
+}
