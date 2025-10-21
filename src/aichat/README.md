@@ -16,3 +16,4 @@ In your `devcontainer.json`, add:
     "VERSION": "latest"
   }
 }
+```

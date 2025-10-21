@@ -54,11 +54,11 @@ download() {
 }
 
 # インストールを開始
-echo "Installing ast-grep(sg)..."
+echo "Installing aichat..."
 
-# ast-grep(sg) がすでにインストールされている場合は何もしない
-if command -v ast-grep >/dev/null 2>&1; then
-  echo "ast-grep(sg) is already installed. Skipping feature install."
+# aichat がすでにインストールされている場合は何もしない
+if command -v aichat >/dev/null 2>&1; then
+  echo "aichat is already installed. Skipping feature install."
   exit 0
 fi
 
@@ -90,7 +90,7 @@ esac
 # install.sh の実行に必要なパッケージのインストール
 case "${distro}" in
   alpine)
-    packages="ca-certificates unzip"
+    packages="ca-certificates tar"
     if ! command -v wget >/dev/null 2>&1 && ! command -v curl >/dev/null 2>&1; then
       packages="curl ${packages}"
     fi
@@ -98,7 +98,7 @@ case "${distro}" in
     ;;
 
   debian | ubuntu)
-    packages="ca-certificates unzip"
+    packages="ca-certificates tar"
     if ! command -v wget >/dev/null 2>&1 && ! command -v curl >/dev/null 2>&1; then
       packages="curl ${packages}"
     fi
