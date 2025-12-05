@@ -1,0 +1,16 @@
+{
+  "id": "ace",
+  "version": "0.0.1",
+  "name": "ace",
+  "description": "A CLI tool that defines and runs AI agents from a single YAML file. Supports multi-agent setups and MCPServer.",
+  "dependsOn": {
+    "ghcr.io/thamaji/devcontainer-features/codex-cli:latest": {}
+  },
+  "options": {
+    "VERSION": {
+      "type": "string",
+      "description": "ace version",
+      "default": "latest"
+    }
+  }
+}
