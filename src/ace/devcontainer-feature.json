@@ -1,6 +1,6 @@
 {
   "id": "ace",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "name": "ace",
   "description": "A CLI tool that defines and runs AI agents from a single YAML file. Supports multi-agent setups and MCPServer.",
   "dependsOn": {

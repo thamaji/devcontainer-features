@@ -54,6 +54,24 @@ download() {
   fi
 }
 
+# JSONから特定のキーの値を抽出する関数
+# perl または jq が必要
+get_json_value() {
+  local _key="$1"
+
+  if perl -MJSON::PP -e1 2>/dev/null; then
+    perl -MJSON::PP -0777 -ne '
+    my $j = decode_json($_);
+    print $j->{"'"$_key"'"} // "";
+    '
+  elif command -v jq >/dev/null 2>&1; then
+    jq -r ".${_key} // empty"
+  else
+    echo "error: perl or jq required" >&2
+    exit 1
+  fi
+}
+
 # インストールを開始
 echo "Installing Codex CLI..."
 
@@ -114,6 +132,9 @@ else
       if ! command -v wget >/dev/null 2>&1 && ! command -v curl >/dev/null 2>&1; then
         packages="curl ${packages}"
       fi
+      if ! perl -MJSON::PP -e1 2>/dev/null && ! command -v jq >/dev/null 2>&1; then
+        packages="jq ${packages}"
+      fi
       packages="coreutils fd findutils gawk grep ripgrep sed ${packages}"
       apk_install ${packages}
       ;;
@@ -122,6 +143,9 @@ else
       packages="ca-certificates tar"
       if ! command -v wget >/dev/null 2>&1 && ! command -v curl >/dev/null 2>&1; then
         packages="curl ${packages}"
+      fi
+      if ! perl -MJSON::PP -e1 2>/dev/null && ! command -v jq >/dev/null 2>&1; then
+        packages="jq ${packages}"
       fi
       packages="coreutils fd-find findutils gawk grep ripgrep sed ${packages}"
       apt_install ${packages}
@@ -141,8 +165,7 @@ else
   if [ "${VERSION}" = "latest" ]; then
     VERSION=$(
       download https://api.github.com/repos/openai/codex/releases/latest \
-      | grep '"tag_name":' \
-      | sed -E 's/.*"([^"]+)".*/\1/'
+      | get_json_value tag_name
     )
     if [ -z "${VERSION}" ]; then
       echo "latest version could not be determined" >&2

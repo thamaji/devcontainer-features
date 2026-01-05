@@ -1,6 +1,6 @@
 {
   "id": "cagent",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "name": "cagent",
   "description": "Installs cagent for Agent Builder and Runtime",
   "options": {
