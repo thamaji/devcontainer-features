@@ -107,11 +107,11 @@ if command -v codex >/dev/null 2>&1; then
   # Codex CLI が利用する推奨パッケージのインストール
   case "${distro}" in
     alpine)
-      apk_install ca-certificates coreutils fd findutils gawk grep ripgrep sed
+      apk_install ack bubblewrap ca-certificates coreutils fd findutils gawk grep ripgrep sed the_silver_searcher tree
       ;;
 
     debian | ubuntu)
-      apt_install ca-certificates coreutils fd-find findutils gawk grep ripgrep sed
+      apt_install ack bubblewrap ca-certificates coreutils fd-find findutils gawk grep ripgrep sed silversearcher-ag tree
 
       if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
         ln -sf "$(command -v fdfind)" /usr/local/bin/fd
@@ -135,7 +135,7 @@ else
       if ! perl -MJSON::PP -e1 2>/dev/null && ! command -v jq >/dev/null 2>&1; then
         packages="jq ${packages}"
       fi
-      packages="coreutils fd findutils gawk grep ripgrep sed ${packages}"
+      packages="ack bubblewrap coreutils fd findutils gawk grep ripgrep sed the_silver_searcher tree ${packages}"
       apk_install ${packages}
       ;;
 
@@ -147,7 +147,8 @@ else
       if ! perl -MJSON::PP -e1 2>/dev/null && ! command -v jq >/dev/null 2>&1; then
         packages="jq ${packages}"
       fi
-      packages="coreutils fd-find findutils gawk grep ripgrep sed ${packages}"
+
+      packages="ack bubblewrap coreutils fd-find findutils gawk grep ripgrep sed silversearcher-ag tree ${packages}"
       apt_install ${packages}
 
       if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
