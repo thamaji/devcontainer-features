@@ -176,11 +176,13 @@ else
 
   # Codex CLIをインストール
   download_url="https://github.com/openai/codex/releases/download/${VERSION}/codex-${arch}-unknown-linux-musl.tar.gz"
-  echo download Codex CLI: "${download_url}"
-  mkdir -p /usr/local/codex-cli
-  download "${download_url}" | tar -xz -C /usr/local/codex-cli
-  mkdir -p /usr/local/bin
-  ln -snf /usr/local/codex-cli/codex-${arch}-unknown-linux-musl /usr/local/bin/codex
+  echo download codex: "${download_url}"
+  download "${download_url}" | tar -xz -C /tmp
+  download_url="https://github.com/openai/codex/releases/download/${VERSION}/codex-code-mode-host-${arch}-unknown-linux-musl.tar.gz"
+  echo download codex-code-mode-host: "${download_url}"
+  download "${download_url}" | tar -xz -C /tmp
+  mv "/tmp/codex-${arch}-unknown-linux-musl" /usr/local/bin/codex
+  mv "/tmp/codex-code-mode-host-${arch}-unknown-linux-musl" /usr/local/bin/codex-code-mode-host
 
   echo "Codex CLI installed successfully."
 fi
@@ -191,9 +193,9 @@ mkdir -p /usr/local/codex-cli
 cat <<EOF >/usr/local/codex-cli/setup.sh
 #!/bin/sh
 set -e
-if [ -z "${OPENAI_API_KEY}" ]; then
-  exit
+if [ ! -z "${OPENAI_API_KEY}" ]; then
+  echo "${OPENAI_API_KEY}" | codex login --with-api-key
 fi
-echo "${OPENAI_API_KEY}" | codex login --with-api-key
+rm /usr/local/codex-cli/setup.sh
 EOF
 chmod +x /usr/local/codex-cli/setup.sh
