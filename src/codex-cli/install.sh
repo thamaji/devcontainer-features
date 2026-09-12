@@ -196,6 +196,6 @@ set -e
 if [ ! -z "${OPENAI_API_KEY}" ]; then
   echo "${OPENAI_API_KEY}" | codex login --with-api-key
 fi
-rm /usr/local/codex-cli/setup.sh
+rm -f /usr/local/codex-cli/setup.sh
 EOF
 chmod +x /usr/local/codex-cli/setup.sh
