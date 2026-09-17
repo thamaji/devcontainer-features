@@ -1,6 +1,6 @@
 {
     "id": "codex-cli",
-    "version": "1.2.2",
+    "version": "1.2.3",
     "name": "Codex CLI",
     "description": "Installs OpenAI Codex CLI with API key support",
     "postCreateCommand": "/usr/local/codex-cli/setup.sh",
