@@ -125,6 +125,8 @@ else
   # Codex CLIをインストール
   download https://chatgpt.com/codex/install.sh | \
     CODEX_RELEASE="${VERSION#rust-v}" \
+    CODEX_INSTALL_DIR=/usr/local/bin \
+    CODEX_HOME=/usr/local/share/codex \
     CODEX_NON_INTERACTIVE=1 \
     sh
 
