@@ -54,24 +54,6 @@ download() {
   fi
 }
 
-# JSONから特定のキーの値を抽出する関数
-# perl または jq が必要
-get_json_value() {
-  local _key="$1"
-
-  if perl -MJSON::PP -e1 2>/dev/null; then
-    perl -MJSON::PP -0777 -ne '
-    my $j = decode_json($_);
-    print $j->{"'"$_key"'"} // "";
-    '
-  elif command -v jq >/dev/null 2>&1; then
-    jq -r ".${_key} // empty"
-  else
-    echo "error: perl or jq required" >&2
-    exit 1
-  fi
-}
-
 # インストールを開始
 echo "Installing Codex CLI..."
 
@@ -84,21 +66,6 @@ elif [ -f /etc/debian_version ]; then
 elif [ -f /etc/os-release ]; then
   distro=$(. /etc/os-release && echo "${ID}")
 fi
-
-# アーキテクチャの特定
-arch=$(uname -m)
-case "${arch}" in
-  x86_64 | amd64)
-    arch="x86_64"
-    ;;
-  aarch64 | arm64)
-    arch="aarch64"
-    ;;
-  *)
-    echo "Unsupported architecture: ${arch}" >&2
-    exit 1
-    ;;
-esac
 
 if command -v codex >/dev/null 2>&1; then
   # Codex CLI がすでにインストールされている場合、Codex CLI のインストールはしない
@@ -128,27 +95,20 @@ else
   # install.sh の実行に必要なパッケージと Codex CLI が利用する推奨パッケージのインストール
   case "${distro}" in
     alpine)
-      packages="ca-certificates tar"
+      packages="ca-certificates coreutils procps tar util-linux"
       if ! command -v wget >/dev/null 2>&1 && ! command -v curl >/dev/null 2>&1; then
         packages="curl ${packages}"
       fi
-      if ! perl -MJSON::PP -e1 2>/dev/null && ! command -v jq >/dev/null 2>&1; then
-        packages="jq ${packages}"
-      fi
-      packages="ack bubblewrap coreutils fd findutils gawk grep ripgrep sed the_silver_searcher tree ${packages}"
+      packages="ack bubblewrap fd findutils gawk grep ripgrep sed the_silver_searcher tree ${packages}"
       apk_install ${packages}
       ;;
 
     debian | ubuntu)
-      packages="ca-certificates tar"
+      packages="ca-certificates coreutils procps tar util-linux"
       if ! command -v wget >/dev/null 2>&1 && ! command -v curl >/dev/null 2>&1; then
         packages="curl ${packages}"
       fi
-      if ! perl -MJSON::PP -e1 2>/dev/null && ! command -v jq >/dev/null 2>&1; then
-        packages="jq ${packages}"
-      fi
-
-      packages="ack bubblewrap coreutils fd-find findutils gawk grep ripgrep sed silversearcher-ag tree ${packages}"
+      packages="ack bubblewrap fd-find findutils gawk grep ripgrep sed silversearcher-ag tree ${packages}"
       apt_install ${packages}
 
       if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
@@ -162,27 +122,11 @@ else
       ;;
   esac
 
-  # latest バージョンを取得
-  if [ "${VERSION}" = "latest" ]; then
-    VERSION=$(
-      download https://api.github.com/repos/openai/codex/releases/latest \
-      | get_json_value tag_name
-    )
-    if [ -z "${VERSION}" ]; then
-      echo "latest version could not be determined" >&2
-      exit 1
-    fi
-  fi
-
   # Codex CLIをインストール
-  download_url="https://github.com/openai/codex/releases/download/${VERSION}/codex-${arch}-unknown-linux-musl.tar.gz"
-  echo download codex: "${download_url}"
-  download "${download_url}" | tar -xz -C /tmp
-  download_url="https://github.com/openai/codex/releases/download/${VERSION}/codex-code-mode-host-${arch}-unknown-linux-musl.tar.gz"
-  echo download codex-code-mode-host: "${download_url}"
-  download "${download_url}" | tar -xz -C /tmp
-  mv "/tmp/codex-${arch}-unknown-linux-musl" /usr/local/bin/codex
-  mv "/tmp/codex-code-mode-host-${arch}-unknown-linux-musl" /usr/local/bin/codex-code-mode-host
+  download https://chatgpt.com/codex/install.sh | \
+    CODEX_RELEASE="${VERSION#rust-v}" \
+    CODEX_NON_INTERACTIVE=1 \
+    sh
 
   echo "Codex CLI installed successfully."
 fi
