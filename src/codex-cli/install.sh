@@ -122,11 +122,16 @@ else
       ;;
   esac
 
-  # Codex CLIをインストール
+  # Keep the standalone package in the image. The official installer creates
+  # /usr/local/bin/codex as a symlink into this package, so installing under
+  # HOME would tie the global command to the build user's home directory.
+  CODEX_HOME_DIR=/usr/local/share/codex
+  mkdir -p "${CODEX_HOME_DIR}"
+
   download https://chatgpt.com/codex/install.sh | \
     CODEX_RELEASE="${VERSION#rust-v}" \
     CODEX_INSTALL_DIR=/usr/local/bin \
-    CODEX_HOME=/usr/local/share/codex \
+    CODEX_HOME="${CODEX_HOME_DIR}" \
     CODEX_NON_INTERACTIVE=1 \
     sh
 
